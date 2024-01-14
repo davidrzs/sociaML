@@ -41,3 +41,8 @@ build-backend = "pdm.backend"
 
 [tool.pdm]
 package-type = "library"
+
+[tool.pdm.dev-dependencies]
+dev = [
+    "tox-pdm>=0.7.2",
+]

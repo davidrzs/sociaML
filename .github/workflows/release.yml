@@ -1,0 +1,27 @@
+# inspired https://github.com/pdm-project/tox-pdm/blob/main/.github/workflows/release.yml
+# name: Release
+
+# on:
+#   push:
+#     tags:
+#       - "*"
+
+# jobs:
+#   release-pypi:
+#     name: release-pypi
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - uses: actions/checkout@v3
+#       - uses: actions/setup-python@v5
+#         with:
+#           python-version: "3.10"
+#           architecture: "x64"
+
+#       - name: Build artifacts
+#         run: |
+#           pipx run build
+#       - name: Upload to Pypi
+#         run: |
+#           pip install twine
+#           twine upload --username __token__ --password ${{ secrets.PYPI_TOKEN }} dist/*
