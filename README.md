@@ -9,9 +9,12 @@
 
 # sociaML - the Swiss Army knife for audiovisual and textual video feature extraction.
 
-
-
 With sociaML you can extract features relevant downstream research (eg social sciences) with little knowledge machine learning or even Python.
+
+## Attention: Currently we are Linux only.
+
+This stems from the fact that we depend on Whisper which depends on Triton which is Linux only for the time being. 
+
 
 ## Getting Started
 
