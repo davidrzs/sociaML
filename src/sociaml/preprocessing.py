@@ -6,7 +6,6 @@ import soundfile as sf
 import tempfile
 import numpy as np
 import glob
-import en_core_web_trf
 from presidio_analyzer import AnalyzerEngine
 from presidio_analyzer.nlp_engine import TransformersNlpEngine
 from presidio_anonymizer import AnonymizerEngine
@@ -85,13 +84,13 @@ class Anonymizer(Preprocessor):
         Transcription: The anonymized transcription.
         """
         for segment in transcription.contributions:
-            text = segment.transcription
+            text = segment.transcript
             
             results = self.analyzer.analyze(text=text, language='en', entities=self.target_entities)
             
             anonymized_result = self.anonymizer.anonymize(text=text, analyzer_results=results)
 
-            segment.transcription = anonymized_result.text
+            segment.transcript = anonymized_result.text
 
         return transcription
 
@@ -232,35 +231,43 @@ class TranscriberAndDiarizer(Preprocessor):
             diarization = self.pipeline(temp_file)
             audio_data, samplerate = sf.read(temp_file)
             transcription = Transcription()
+            
+            
+            segments =  []
 
-            last_speaker = None
-            last_end = None
+            if self.merge_consecutive_speakers:
+        
+                previous_speaker = None
 
-            for turn, _, speaker in diarization.itertracks(yield_label=True):
-                start = turn.start
-                end = turn.end
+                for turn, _, speaker in diarization.itertracks(yield_label=True):
+                    start = turn.start
+                    end = turn.end
 
-                # Check if this speaker is the same as the last speaker and the option is set
-                if self.merge_consecutive_speakers and speaker == last_speaker:
-                    # Update the end time of the last contribution
-                    transcription.contributions[-1].end = end
-                else:
-                    # Process a new speaker turn
-                    speaker_audio = audio_data[int(start * samplerate):int(end * samplerate)]
-                    with tempfile.NamedTemporaryFile(suffix=".wav", delete=True) as temp_file:
-                        sf.write(temp_file, speaker_audio, samplerate)
-                        temp_file.seek(0)
-                        result = whisper.load_model("medium").transcribe(temp_file.name)
+                    # If the current speaker is the same as the previous speaker, extend the previous segment
+                    if speaker == previous_speaker:
+                        segments[-1] = (segments[-1][0], end, speaker)
+                    else:
+                        segments.append((start, end, speaker))
 
-                        transcription.contributions.append(Contribution(
-                            start=start,
-                            end=end,
-                            speaker=speaker,
-                            transcription=result["text"]
-                        ))
-
-                # Update the last speaker and end time
-                last_speaker = speaker
-                last_end = end
+                    previous_speaker = speaker
+                                                  
+            else:
+                for turn, _, speaker in diarization.itertracks(yield_label=True):
+                    start = turn.start
+                    end = turn.end
+                    segments.append(start, end, speaker)
+            
+            for start, end, speaker in tqdm(segments):
+                speaker_audio = audio_data[int(start * samplerate):int(end * samplerate)]
+                with tempfile.NamedTemporaryFile(suffix=".wav", delete=True) as whisper_temp_file:
+                    sf.write(whisper_temp_file, speaker_audio, samplerate)
+                    whisper_temp_file.seek(0)
+                    result = whisper.load_model("medium").transcribe(whisper_temp_file.name)
+                    transcription.contributions.append(Contribution(
+                        start=start,
+                        end=end,
+                        speaker=speaker,
+                        transcript=result["text"]
+                    ))
 
             return transcription
