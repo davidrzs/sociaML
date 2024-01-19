@@ -40,9 +40,12 @@ build-backend = "pdm.backend"
 
 
 [tool.pdm]
-package-type = "library"
+distribution = "true"
 
 [tool.pdm.dev-dependencies]
 dev = [
     "tox-pdm>=0.7.2",
+]
+test = [
+    "pytest>=7.4.4",
 ]
