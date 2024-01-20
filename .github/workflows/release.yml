@@ -8,7 +8,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    permissions:
+      # IMPORTANT: this permission is mandatory for trusted publishing
+      id-token: write
     steps:
     - uses: actions/checkout@v2
 
@@ -27,4 +29,4 @@ jobs:
         TEST_PYPI_API_TOKEN: ${{ secrets.TEST_PYPI_API_TOKEN }}
       run: |
         pdm build
-        pdm publish --repository testpypi
+        pdm publish --repository testpypi --password  ${{ secrets.TEST_PYPI_API_TOKEN }}
