@@ -1,3 +1,6 @@
+from presidio_analyzer import AnalyzerEngine
+from presidio_analyzer.nlp_engine import TransformersNlpEngine
+from presidio_anonymizer import AnonymizerEngine
 from moviepy.editor import VideoFileClip
 from pyannote.audio import Pipeline
 import torch
@@ -6,9 +9,6 @@ import soundfile as sf
 import tempfile
 import numpy as np
 import glob
-from presidio_analyzer import AnalyzerEngine
-from presidio_analyzer.nlp_engine import TransformersNlpEngine
-from presidio_anonymizer import AnonymizerEngine
 from tqdm import tqdm
 import json
 import os
@@ -49,27 +49,15 @@ class Anonymizer(Preprocessor):
     anonymizer (AnonymizerEngine): The engine to perform anonymization.
     """
 
-    def __init__(self, target_entities=["PERSON", "ORG", "LOC", "NORP"], model_config=None):
+    def __init__(self, target_entities=["PERSON", "ORG", "LOC", "NORP"]):
         """
         Initialize the Anonymizer class.
 
         Parameters:
         target_entities (list of str): A list of entity types to be anonymized.
-        model_config (dict, optional): Configuration for the NLP engine models.
         """
-        if model_config is None:
-            self.model_config = [{
-                "lang_code": "en",
-                "model_name": {
-                    "spacy": "en_core_web_sm",
-                    "transformers": "dslim/bert-base-NER"
-                }
-            }]
-        else:
-            self.model_config = model_config
-            
-        self.nlp_engine = TransformersNlpEngine(models=self.model_config)
-        self.analyzer = AnalyzerEngine(nlp_engine=self.nlp_engine)
+ 
+        self.analyzer  = AnalyzerEngine()
         self.anonymizer = AnonymizerEngine()
         self.target_entities = target_entities
     

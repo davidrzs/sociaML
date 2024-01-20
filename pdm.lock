@@ -5,7 +5,7 @@
 groups = ["default", "test"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:00fc9351d0cb6e553e2d4f929da4cba9103b5124ce0906012b070b14f0c9e136"
+content_hash = "sha256:e65b4af3c583c5eb599c4e57eda5fa2c626400cbcd3a8bd4d9b481822e1f19db"
 
 [[package]]
 name = "aiohttp"
@@ -2632,6 +2632,17 @@ files = [
 ]
 
 [[package]]
+name = "pip"
+version = "23.3.2"
+requires_python = ">=3.7"
+summary = "The PyPA recommended tool for installing Python packages."
+groups = ["default"]
+files = [
+    {file = "pip-23.3.2-py3-none-any.whl", hash = "sha256:5052d7889c1f9d05224cd41741acb7c5d6fa735ab34e339624a614eaaa7e7d76"},
+    {file = "pip-23.3.2.tar.gz", hash = "sha256:7fd9972f96db22c8077a1ee2691b172c8089b17a5652a44494a9ecb0d78f9149"},
+]
+
+[[package]]
 name = "platformdirs"
 version = "4.1.0"
 requires_python = ">=3.8"
@@ -3919,6 +3930,36 @@ files = [
 ]
 
 [[package]]
+name = "spacy-alignments"
+version = "0.9.1"
+requires_python = ">=3.7"
+summary = "A spaCy package for the Rust tokenizations library"
+groups = ["default"]
+files = [
+    {file = "spacy-alignments-0.9.1.tar.gz", hash = "sha256:7e020ec4797d6179060818d01cdb4e0013a52dba544b9bbfb5efcff8851926dc"},
+    {file = "spacy_alignments-0.9.1-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:f2d9b8da21d7924f4b5e6cfd89234b27f7939c4211c0fa866b3dde4110b96dd6"},
+    {file = "spacy_alignments-0.9.1-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:12402e2eea5c4b21b197c43c9bed2629ab1324ae46bd92f7b8e4630dec14ea3a"},
+    {file = "spacy_alignments-0.9.1-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:dd0279610d5047205c8d10368a600fa6b9c6d995efdfb093708d54c9ad7efc1f"},
+    {file = "spacy_alignments-0.9.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:9c152d78b25a88487145a6bb82aefc938e503c28c4249fd723390409deeb3f04"},
+    {file = "spacy_alignments-0.9.1-cp310-cp310-win_amd64.whl", hash = "sha256:61b42ba12222c1ea0e659ae5834e494f25492e7649425d0cef65aa8948818dd1"},
+    {file = "spacy_alignments-0.9.1-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:285babdffd85840164446fbc40435c57510d4b90f12e893bbecb55c690b23c51"},
+    {file = "spacy_alignments-0.9.1-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:3eb9cc7efe494468e61038f91269d66ca9a4aa3395250f60eb942368c19a6e11"},
+    {file = "spacy_alignments-0.9.1-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:0dccd315b0d083dfae0c82f845e647ead16f04d2ec1c15c9fc05281d6ae00cf7"},
+    {file = "spacy_alignments-0.9.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:c1fe1ad0bcc9f365746c4031d0523b52da79dd87f9c0e6e977c6c8fd4032a82b"},
+    {file = "spacy_alignments-0.9.1-cp311-cp311-win_amd64.whl", hash = "sha256:a58ce17fd919c3719529df17c34f82bbaec600130655294aa05effd2308baaeb"},
+    {file = "spacy_alignments-0.9.1-cp312-cp312-macosx_10_9_x86_64.whl", hash = "sha256:bf5a5d7b65f9c7dfbf9c9ac1d1a2ab3e1cdcfc93a1f52cef0d666c29b416fe7d"},
+    {file = "spacy_alignments-0.9.1-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:20644e71b2d685fc31013ac8a806224a9de4a4dd2c03ded621a95a95efc6000d"},
+    {file = "spacy_alignments-0.9.1-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:36825157fbd7b96e6bfeb3a0076dd36d8d1f560624b824c2873d10a1a0d70fd2"},
+    {file = "spacy_alignments-0.9.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:35fa7444dd7117e45cfca51335a4eb737627c9a9dfd191c8291cf9f5fb0557ae"},
+    {file = "spacy_alignments-0.9.1-cp312-cp312-win_amd64.whl", hash = "sha256:adb04d06cf417f5df56a80f1a54f9eedaab3e4165b4fcb50bf7c3680eb549fc6"},
+    {file = "spacy_alignments-0.9.1-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:992e2768b6f2432922b616ca893fe7a66d3e865cf457352dc250bc16ab016633"},
+    {file = "spacy_alignments-0.9.1-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:10ecfb8e42adf0d39fec87bed9f344e0f85be893d2258d0b7d81134d5b110525"},
+    {file = "spacy_alignments-0.9.1-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:80f36d49431d6d6067c57caaabe1aca501bbe8df39c9ffa92daf386bdc239074"},
+    {file = "spacy_alignments-0.9.1-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:b62c1d70bfb6fc12ce2a7a92f1c1725abaa87a0e06bc2c4bf2b3b5b43f5a3f59"},
+    {file = "spacy_alignments-0.9.1-cp39-cp39-win_amd64.whl", hash = "sha256:0b3cd95356f27fa4dc41448e131b6b44eb065d11e4c4c4fbcbfc0ef20ad4e513"},
+]
+
+[[package]]
 name = "spacy-legacy"
 version = "3.0.12"
 requires_python = ">=3.6"
@@ -3938,6 +3979,39 @@ groups = ["default"]
 files = [
     {file = "spacy-loggers-1.0.5.tar.gz", hash = "sha256:d60b0bdbf915a60e516cc2e653baeff946f0cfc461b452d11a4d5458c6fe5f24"},
     {file = "spacy_loggers-1.0.5-py3-none-any.whl", hash = "sha256:196284c9c446cc0cdb944005384270d775fdeaf4f494d8e269466cfa497ef645"},
+]
+
+[[package]]
+name = "spacy-transformers"
+version = "1.3.4"
+requires_python = ">=3.7"
+summary = "spaCy pipelines for pre-trained BERT and other transformers"
+groups = ["default"]
+dependencies = [
+    "numpy>=1.19.0; python_version >= \"3.9\"",
+    "spacy-alignments<1.0.0,>=0.7.2",
+    "spacy<4.0.0,>=3.5.0",
+    "srsly<3.0.0,>=2.4.0",
+    "torch>=1.8.0",
+    "transformers<4.37.0,>=3.4.0",
+]
+files = [
+    {file = "spacy-transformers-1.3.4.tar.gz", hash = "sha256:3764ada8652a3984bd996fc301e4a7b4d8379228be50f7535070d5ee0d47beeb"},
+    {file = "spacy_transformers-1.3.4-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:8a2bd86c2a464bb4202e731304d4b35f78785b3703c6c5b226ad9f4bc17333e9"},
+    {file = "spacy_transformers-1.3.4-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:c6c4e10bb5957a993b22d49fbc7171297e2ca046ab8c7bc25a3940893390946d"},
+    {file = "spacy_transformers-1.3.4-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:1a04da1f01d0110a7249f636bc010e5c35ec7198a8dec39b432e9d7b8c795b70"},
+    {file = "spacy_transformers-1.3.4-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:0e42749b6697de609b5ab10805b6c4caad9dd2aa997c9c9d8f09190dd290edef"},
+    {file = "spacy_transformers-1.3.4-cp310-cp310-win_amd64.whl", hash = "sha256:f60691b43d8c2091ac5482246c4495708be22ed162d732c2af7259ba7eb27a0e"},
+    {file = "spacy_transformers-1.3.4-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:4908621bbc390133ebe06b02393fb52e277372daa2a564c49817b437fbd729f2"},
+    {file = "spacy_transformers-1.3.4-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:d946588a80e722f54ce264ae5524d9d30241246705429ec9a6c136a7853a137a"},
+    {file = "spacy_transformers-1.3.4-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:86a4d0a44264c2da08e15c3db85e52ec7775f988cdbed6ead3e261ff6f964ca9"},
+    {file = "spacy_transformers-1.3.4-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:f582c39ab5358a109ef1dc4e5704c3c937de8893fd8c1b197f462bca1f899cec"},
+    {file = "spacy_transformers-1.3.4-cp311-cp311-win_amd64.whl", hash = "sha256:b805ed81ac3492576a5966eeb99b682885562e1d468a5133cc3f60353cc2512f"},
+    {file = "spacy_transformers-1.3.4-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:2830fd57bc2e9e262e1d85aa16c1ce7c96071580540bc650c1f5c0d4fb243991"},
+    {file = "spacy_transformers-1.3.4-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:ba6dd9bf5e53db4f2b0e9c17ef2ee7ccfdfe19735acd8e7f1bef3177ffbaa796"},
+    {file = "spacy_transformers-1.3.4-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:73766413f8b67822c40280ffb0449105afd3f8b899e97315101e96c79e6cf498"},
+    {file = "spacy_transformers-1.3.4-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:9c4e04f9ff3ee1467e39d1d92f3185aa0bf8173dd544b674a113cb1854f7d2b2"},
+    {file = "spacy_transformers-1.3.4-cp39-cp39-win_amd64.whl", hash = "sha256:4a0597188fa5b7723b74b9a769946441e7900ae1fcff90f67890f754133dc612"},
 ]
 
 [[package]]
