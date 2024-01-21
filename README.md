@@ -38,8 +38,7 @@ SociaMLs pipeline can best be summarized by the following graphic:
 
 `sociaML` offers a preprocessing pipeline that converts videos into an intermediate JSON representation for efficient analysis. This step involves transcription, diarization, and anonymization.
 
-```
-python
+```python
 from sociaML.preprocessing import TranscriberAndDiarizer, Anonymizer, AudioExtractor
 
 # Initialize components
@@ -57,8 +56,7 @@ transcript = anonymizer.process(transcript)
 
 `sociaML` provides a flexible analysis framework, allowing for the extraction of various features at different levels: Contribution, Participant, and Global.
 
-```
-python
+```python
 from sociaML.analysis import Analysis, GlobalAudioEmotionAnalyzer, ParticipantAudioEmotionAnalyzer, ParticipantSentimentAnalyzer, GlobalEkmanEmotionAnalyzer, GlobalNLTKTokenCountAnalyzer, ContributionAudioEmotionAnalyzer
 
 # Initialize Analysis with desired Analyzers
