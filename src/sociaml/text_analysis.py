@@ -1,13 +1,20 @@
 from .analysis import GlobalAnalyzer, ParticipantAnalyzer, ContributionAnalyzer
-from .datastructures import AnalysisObject
+from .datastructures import AnalysisObject, AnalysisMode
 
 import numpy as np
+from transformers import pipeline
+import nltk        
+from sentence_transformers import SentenceTransformer
+import spacy
+
+
+
 
 
 class GlobalContributionCount(GlobalAnalyzer):
 
     def analyze(self,  ao : AnalysisObject):
-        ao.global_data['contribution_count'] = len(ao.contribution_data)
+        ao.global_data['contribution_count'] : int = len(ao.contribution_data)
         ao.analyses_done.append(self.__class__.__name__)
 
 
@@ -29,7 +36,7 @@ class GlobalNLTKTokenCountAnalyzer(GlobalAnalyzer):
         if ParticipantNLTKTokenCountAnalyzer.__name__ not in ao.analyses_done:
             ParticipantNLTKTokenCountAnalyzer().analyze(ao)
         
-        ao.global_data['token_count'] = 0
+        ao.global_data['token_count'] : int = 0
         for participant in ao.participants:
             ao.global_data['token_count'] += ao.participant_data[participant]['token_count'] 
         
@@ -44,7 +51,7 @@ class ParticipantNLTKTokenCountAnalyzer(GlobalAnalyzer):
         if ContributionNLTKTokenCountAnalyzer.__name__ not in ao.analyses_done:
             ContributionNLTKTokenCountAnalyzer().analyze(ao)
         for participant in ao.participants:
-            ao.participant_data[participant]['token_count'] = 0
+            ao.participant_data[participant]['token_count'] : int = 0
             for contribution in ao.contribution_data:
                 if contribution['speaker'] == participant:
                     ao.participant_data[participant]['token_count'] += contribution['token_count']
@@ -54,11 +61,8 @@ class ParticipantNLTKTokenCountAnalyzer(GlobalAnalyzer):
     
     
 class ContributionNLTKTokenCountAnalyzer(GlobalAnalyzer):
-    def __init__(self):
-        import nltk
     
     def analyze(self, ao : AnalysisObject):
-        import nltk        
         
         for contribution in ao.contribution_data:
             token_count = len(nltk.word_tokenize(contribution['transcript']))
@@ -68,29 +72,11 @@ class ContributionNLTKTokenCountAnalyzer(GlobalAnalyzer):
         ao.analyses_done.append(self.__class__.__name__)
 
 
-class GlobalTopicModelAnalyzer(GlobalAnalyzer):
-    def __init__(self):
-        pass
-    
-    def analyze(self, data):
-        pass
-    
-    
-class ParticipantTopicModelAnalyzer(ParticipantAnalyzer):
-    def __init__(self):
-        pass
-    
-    def analyze(self, data):
-        pass
-
-
 class ContributionEkmanEmotionAnalyzer(ContributionAnalyzer):
     # https://huggingface.co/j-hartmann/emotion-english-distilroberta-base
 
     def analyze(self, ao : AnalysisObject):
         
-        from transformers import pipeline
-
         classifier = pipeline("text-classification", model="j-hartmann/emotion-english-distilroberta-base", return_all_scores=True)
 
         
@@ -133,37 +119,60 @@ class ParticipantEkmanEmotionAnalyzer(ParticipantAnalyzer):
 
 
 class GlobalEkmanEmotionAnalyzer(GlobalAnalyzer):
-    def analyze(self, ao):
+    
+    def __init__(self, mode: AnalysisMode = AnalysisMode.ENTIRE):
+        self.mode = mode
+    
+    def analyze(self, ao : AnalysisObject):
         
-        # make sure the ContributionEkmanEmotionAnalyzer already ran
-        if ContributionEkmanEmotionAnalyzer.__name__ not in ao.analyses_done:
-            ContributionEkmanEmotionAnalyzer().analyze(ao)
-            
-        if GlobalContributionCount.__name__ not in ao.analyses_done:
-            GlobalContributionCount().analyze(ao)
-            
-        ao.global_data['ekmanemotion'] = {}
-        
+        if self.mode == AnalysisMode.ENTIRE:
 
-        for contribution in ao.contribution_data:
-            for emotion in contribution['ekmanemotion']:
-                if emotion not in ao.global_data['ekmanemotion']:
-                        ao.global_data['ekmanemotion'][emotion] = 0
-                ao.global_data['ekmanemotion'][emotion] += contribution['ekmanemotion'][emotion]
-                    
-        # now we divide by the contribution count
-        for emotion in ao.global_data['ekmanemotion']:
-            ao.global_data['ekmanemotion'][emotion] /= ao.global_data['contribution_count']
+            classifier = pipeline("text-classification", model="j-hartmann/emotion-english-distilroberta-base", return_all_scores=True)
+
+        
+            cls = classifier(ao.global_data['transcript'])[0]
+            # attach the classification to the contribution in the data
+            emotion_dict = {item['label']: item['score'] for item in cls}
             
-        ao.analyses_done.append(self.__class__.__name__)
+            ao.global_data['ekmanemotion'] = emotion_dict    
+  
+            ao.analyses_done.append(self.__class__.__name__)
+
+        
+        elif self.mode == AnalysisMode.AVERAGE_PER_PARTICIPANT:
+        
+ 
+            raise NotImplementedError("AnalysisMode.AVERAGE_PER_PARTICIPANT not implemented yet")
+        
+        else:
+            
+            assert self.mode == AnalysisMode.AVERAGE_PER_CONTRIBUTION
+ 
+            if ContributionEkmanEmotionAnalyzer.__name__ not in ao.analyses_done:
+                ContributionEkmanEmotionAnalyzer().analyze(ao)
+
+            if GlobalContributionCount.__name__ not in ao.analyses_done:
+                GlobalContributionCount().analyze(ao)
+
+            ao.global_data['ekmanemotion'] = {}       
+
+            for contribution in ao.contribution_data:
+                for emotion in contribution['ekmanemotion']:
+                    if emotion not in ao.global_data['ekmanemotion']:
+                            ao.global_data['ekmanemotion'][emotion] = 0
+                    ao.global_data['ekmanemotion'][emotion] += contribution['ekmanemotion'][emotion]
+                        
+            # now we divide by the contribution count
+            for emotion in ao.global_data['ekmanemotion']:
+                ao.global_data['ekmanemotion'][emotion] /= ao.global_data['contribution_count']
+                
+            ao.analyses_done.append(self.__class__.__name__)
 
 
 class ContributionSentimentAnalyzer(ContributionAnalyzer):
     # https://huggingface.co/lxyuan/distilbert-base-multilingual-cased-sentiments-student
     def analyze(self, ao : AnalysisObject):
         
-        from transformers import pipeline
-
         classifier = pipeline(model="lxyuan/distilbert-base-multilingual-cased-sentiments-student", return_all_scores=True)
         processed_contributions = []
         
@@ -207,30 +216,53 @@ class ParticipantSentimentAnalyzer(ParticipantAnalyzer):
 
 
 class GlobalSentimentAnalyzer(GlobalAnalyzer):
+    
+    def __init__(self, mode: AnalysisMode = AnalysisMode.ENTIRE):
+        self.mode = mode
+    
     def analyze(self, ao):
         
-        if ContributionSentimentAnalyzer.__name__ not in ao.analyses_done:
-            ContributionSentimentAnalyzer().analyze(ao)
+        if self.mode == AnalysisMode.AVERAGE_PER_CONTRIBUTION:
             
-        if GlobalContributionCount.__name__ not in ao.analyses_done:
-            GlobalContributionCount().analyze(ao)
+            if ContributionSentimentAnalyzer.__name__ not in ao.analyses_done:
+                ContributionSentimentAnalyzer().analyze(ao)
+                
+            if GlobalContributionCount.__name__ not in ao.analyses_done:
+                GlobalContributionCount().analyze(ao)
+                
+            ao.global_data['sentiment'] = {}
             
-        ao.global_data['sentiment'] = {}
-        
 
-        for contribution in ao.contribution_data:
-            for sentiment in contribution['sentiment']:
-                if sentiment not in ao.global_data['sentiment']:
-                        ao.global_data['sentiment'][sentiment] = 0
-                ao.global_data['sentiment'][sentiment] += contribution['sentiment'][sentiment]
-                    
-        # now we divide by the contribution count
-        for sentiment in ao.global_data['sentiment']:
-            ao.global_data['sentiment'][sentiment] /= ao.global_data['contribution_count']
+            for contribution in ao.contribution_data:
+                for sentiment in contribution['sentiment']:
+                    if sentiment not in ao.global_data['sentiment']:
+                            ao.global_data['sentiment'][sentiment] = 0
+                    ao.global_data['sentiment'][sentiment] += contribution['sentiment'][sentiment]
+                        
+            # now we divide by the contribution count
+            for sentiment in ao.global_data['sentiment']:
+                ao.global_data['sentiment'][sentiment] /= ao.global_data['contribution_count']
+                
+            ao.analyses_done.append(self.__class__.__name__)
+        
+        elif self.mode == AnalysisMode.AVERAGE_PER_PARTICIPANT:
+            raise NotImplementedError("AnalysisMode.ENTIRE not implemented yet")
+        
+        else:
             
-        ao.analyses_done.append(self.__class__.__name__)
+            assert self.mode == AnalysisMode.ENTIRE
+            
+            
+            classifier = pipeline(model="lxyuan/distilbert-base-multilingual-cased-sentiments-student", return_all_scores=True)
         
+            cls = classifier(ao.global_data['transcript'])[0]
+            # attach the classification to the contribution in the data
+            emotion_dict = {item['label']: item['score'] for item in cls}
+            ao.global_data['sentiment'] = emotion_dict
         
+            ao.analyses_done.append(self.__class__.__name__)
+            
+            
         
         
         
@@ -241,11 +273,9 @@ class ContributionSentenceEmbeddingAnalyzer(ContributionAnalyzer):
     
     def __init__(self, sentence_transformer="sentence-transformers/all-mpnet-base-v2") -> None:
         super().__init__()
-        from sentence_transformers import SentenceTransformer
 
         self.model = SentenceTransformer(sentence_transformer)
         
-        import spacy
         self.spacy_nlp = spacy.load("en_core_web_sm")
 
     
@@ -254,7 +284,6 @@ class ContributionSentenceEmbeddingAnalyzer(ContributionAnalyzer):
     
         for contribution in ao.contribution_data:
             
-            import numpy as np
 
             # we need to do this per sentence        
             spacy_doc = self.spacy_nlp(contribution['transcript'])

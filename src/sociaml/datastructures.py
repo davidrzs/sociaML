@@ -1,3 +1,5 @@
+from enum import Enum
+
 from dataclasses import dataclass, field
 from dataclasses_json import dataclass_json
 from typing import Optional, List, Dict
@@ -42,8 +44,13 @@ class AnalysisObject:
     participants: Optional[list] = None
     global_data: Optional[dict] = None
     participant_data: Optional[dict] = None
-    contribution_data: Optional[dict] = None
-    audio: Optional[bytes] = None
-    samplingrate: Optional[int] = None
+    contribution_data: Optional[list] = None
+    audio_path: Optional[str] = None
     video_path: Optional[str] = None
     analyses_done: list[str] = field(default_factory=list)
+    
+    
+class AnalysisMode(Enum):
+    ENTIRE = 1
+    AVERAGE_PER_PARTICIPANT = 2
+    AVERAGE_PER_CONTRIBUTION = 3

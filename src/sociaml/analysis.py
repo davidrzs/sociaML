@@ -1,6 +1,5 @@
 from .datastructures import Transcription, AnalysisObject
 
-import librosa
 
 class Analysis:
     """
@@ -18,41 +17,36 @@ class Analysis:
         """
         self.analyzers = args
     
-    def analyze(self, transcription: Transcription, audio_path, video_path):
-        """
-        Performs the analysis process on a list of contributions.
+    def analyze(self, transcription: Transcription, video_path: str, audio_path: str):
 
-        Parameters:
-            transcription (Transcription): A transcription to analyze
-            audio (optional): The audio data associated with the contributions.
-            samplingrate (int, optional): The sampling rate of the audio data.
-
-        Returns:
-            tuple: A tuple containing global data, participant data, and contribution data.
-        """  
-        print(transcription)
         participants = []
+
         for contribution in transcription.contributions:
             if contribution.speaker not in participants:
                 participants.append(contribution.speaker)
                 
-        participant_data = {}
+        participant_data : dict = {}
         for participant in participants:
             participant_data[participant] = {}
             
-        global_data = {}
+        global_data : dict = {
+            "transcript": ""
+        }
         
-        # TODO dont load audio here but do it when needed to save memory
-        audio, samplingrate = librosa.load(audio_path)
+        for contribution in transcription.contributions:
+            if contribution.transcript:
+                global_data["transcript"] += contribution.transcript + " "
         
         
-        ao = AnalysisObject(participants, global_data, participant_data, transcription.to_dict()['contributions'], audio, samplingrate, video_path)
+        
+        ao : AnalysisObject = AnalysisObject(participants, global_data, participant_data, transcription.to_dict()['contributions'], audio_path, video_path)
         
         for analyzer in self.analyzers:
             # check if the analyzer class is not already in the list of analyses done
             if analyzer.__class__.__name__ not in ao.analyses_done:
                 # if not, analyze the data
                 analyzer.analyze(ao)
+                
         return ao.global_data, ao.participant_data, ao.contribution_data
 
 class Analyzer:

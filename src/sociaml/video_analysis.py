@@ -9,6 +9,10 @@ import pandas as pd
 
 
 class ContributionPyFeatVideoFeatureAnalyzer(ContributionAnalyzer):
+    
+    def __init__(self, skip_frames=24) -> None:
+        self.skip_frames = skip_frames
+        
     def analyze(self, ao):
         contributions = ao.contribution_data
         
@@ -23,7 +27,7 @@ class ContributionPyFeatVideoFeatureAnalyzer(ContributionAnalyzer):
             with NamedTemporaryFile(suffix=".mp4") as temp_file:
                 sub_clip.write_videofile(temp_file.name)
                 # TODO 24 is a magic number, should be a parameter
-                video_prediction = detector.detect_video(temp_file.name, skip_frames=24)
+                video_prediction = detector.detect_video(temp_file.name, skip_frames=0)
                 # drop useless columns ([]'input', 'frame', 'approx_time'])
                 video_prediction = video_prediction.drop(columns=['input', 'frame', 'approx_time'])
                 print(video_prediction.columns)
