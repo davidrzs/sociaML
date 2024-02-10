@@ -33,8 +33,7 @@ def test_analysis_object_initialization():
     assert analysis_obj.global_data is None
     assert analysis_obj.participant_data is None
     assert analysis_obj.contribution_data is None
-    assert analysis_obj.audio is None
-    assert analysis_obj.samplingrate is None
+    assert analysis_obj.audio_path is None
     assert analysis_obj.video_path is None
     assert isinstance(analysis_obj.analyses_done, list)
     assert len(analysis_obj.analyses_done) == 0

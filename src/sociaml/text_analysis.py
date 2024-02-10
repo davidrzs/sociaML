@@ -77,7 +77,7 @@ class ContributionEkmanEmotionAnalyzer(ContributionAnalyzer):
 
     def analyze(self, ao : AnalysisObject):
         
-        classifier = pipeline("text-classification", model="j-hartmann/emotion-english-distilroberta-base", return_all_scores=True)
+        classifier = pipeline("text-classification", model="j-hartmann/emotion-english-distilroberta-base", top_k=None)
 
         
         for contribution in ao.contribution_data:
@@ -127,7 +127,7 @@ class GlobalEkmanEmotionAnalyzer(GlobalAnalyzer):
         
         if self.mode == AnalysisMode.ENTIRE:
 
-            classifier = pipeline("text-classification", model="j-hartmann/emotion-english-distilroberta-base", return_all_scores=True)
+            classifier = pipeline("text-classification", model="j-hartmann/emotion-english-distilroberta-base", top_k=None)
 
         
             cls = classifier(ao.global_data['transcript'])[0]
@@ -173,7 +173,7 @@ class ContributionSentimentAnalyzer(ContributionAnalyzer):
     # https://huggingface.co/lxyuan/distilbert-base-multilingual-cased-sentiments-student
     def analyze(self, ao : AnalysisObject):
         
-        classifier = pipeline(model="lxyuan/distilbert-base-multilingual-cased-sentiments-student", return_all_scores=True)
+        classifier = pipeline(model="lxyuan/distilbert-base-multilingual-cased-sentiments-student", top_k=None)
         processed_contributions = []
         
         for contribution in ao.contribution_data:
@@ -253,7 +253,7 @@ class GlobalSentimentAnalyzer(GlobalAnalyzer):
             assert self.mode == AnalysisMode.ENTIRE
             
             
-            classifier = pipeline(model="lxyuan/distilbert-base-multilingual-cased-sentiments-student", return_all_scores=True)
+            classifier = pipeline(model="lxyuan/distilbert-base-multilingual-cased-sentiments-student", top_k=None)
         
             cls = classifier(ao.global_data['transcript'])[0]
             # attach the classification to the contribution in the data

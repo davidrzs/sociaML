@@ -52,4 +52,5 @@ dev = [
 ]
 test = [
     "pytest>=7.4.4",
+    "python-dotenv>=1.0.1",
 ]
