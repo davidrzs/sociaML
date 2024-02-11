@@ -162,3 +162,4 @@ cython_debug/
 #.idea/
 model/*
 cache/*
+audio.mp3

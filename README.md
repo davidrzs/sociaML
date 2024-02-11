@@ -103,10 +103,9 @@ If you have feature requests or want to co-develop this package please do not he
 
 ## Collaborators
 
-Main Developers
+Developer
 
 - David Zollikofer zdavid@ethz.ch
-- Loic Cabon lcabon@ethz.ch
 
 Technical guidance by 
 
