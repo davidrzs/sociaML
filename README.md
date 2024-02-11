@@ -2,9 +2,7 @@
 
 [![pdm-managed](https://img.shields.io/badge/pdm-managed-blueviolet)](https://pdm-project.org)
 ![GitHub License](https://img.shields.io/github/license/davidrzs/sociaML)
-![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/davidrzs/sociaML/ci.yml)
 ![PyPI - Version](https://img.shields.io/pypi/v/sociaML)
-
 
 
 # sociaML - the Swiss Army knife for audiovisual and textual video feature extraction.
