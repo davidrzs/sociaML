@@ -1,6 +1,6 @@
 [project]
 name = "sociaML"
-version = "0.1.2"
+version = "0.1.3"
 description = "sociaML - the Swiss Army knife for audiovisual and textual video feature extraction."
 authors = [
     {name = "David Zollikofer",email = "david@zollikofer.co"},
