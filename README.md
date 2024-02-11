@@ -111,6 +111,19 @@ Technical guidance by
 - [Aniket Kesari](https://www.aniketkesari.com/)
 
 
+
+## Sources
+
+
+TODO: This project stands on the should of giants (more infos as well as suggested citations to come.)
+
+- https://py-feat.org
+- https://github.com/pyannote/pyannote-audio
+- https://github.com/m-bain/whisperX
+- https://librosa.org
+- https://www.sbert.net (SentenceTransformers)
+- https://github.com/audeering/w2v2-how-to
+
 ## License
 
 Code is licensed under the permissive MIT license. Certain modules we depend on have different licenses though!
