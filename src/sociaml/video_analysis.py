@@ -68,7 +68,6 @@ class GlobalPyFeatVideoFeatureAnalyzer(GlobalAnalyzer):
 
         video_prediction = detector.detect_video(ao.video_path, skip_frames=self.skip_frames)
         video_prediction = video_prediction.drop(columns=['input', 'frame', 'approx_time'])
-        print(video_prediction.columns)
         ao.global_data['pyfeat_video_features_mean'] = video_prediction.mean(skipna=True).to_dict()
         ao.global_data['pyfeat_video_features_std'] = video_prediction.std(skipna=True).to_dict()
 
