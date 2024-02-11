@@ -24,7 +24,7 @@ jobs:
           cache: true
       - name: Reclaim Space
         run: |
-          apt clean
+          sudo apt clean
           sudo rm -rf "/usr/local/share/boost"
       - name: Install dependencies
         run: |
