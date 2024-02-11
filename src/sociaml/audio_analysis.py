@@ -163,7 +163,7 @@ class ContributionAudioSpeakingTimeAnalyzer(ContributionAnalyzer):
     def analyze(self, ao : AnalysisObject):
     
         for contribution in ao.contribution_data:
-            contribution['speaking_time'] = contribution['start'] - contribution['end']
+            contribution['speaking_time'] = contribution['end'] - contribution['start']
         
         ao.analyses_done.append(self.__class__.__name__)
 
