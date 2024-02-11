@@ -10,7 +10,7 @@ import pandas as pd
 
 class ContributionPyFeatVideoFeatureAnalyzer(ContributionAnalyzer):
     
-    def __init__(self, skip_frames=24) -> None:
+    def __init__(self, skip_frames=None) -> None:
         self.skip_frames = skip_frames
         
     def analyze(self, ao):
@@ -19,16 +19,13 @@ class ContributionPyFeatVideoFeatureAnalyzer(ContributionAnalyzer):
         clip = mp.VideoFileClip(ao.video_path)
         detector = Detector()
 
-        
         for i, contribution in enumerate(contributions):
             
             sub_clip = clip.subclip(contribution['start'], contribution['end'])
             # write subclip to a temporary file
             with NamedTemporaryFile(suffix=".mp4") as temp_file:
                 sub_clip.write_videofile(temp_file.name)
-                # TODO 24 is a magic number, should be a parameter
-                video_prediction = detector.detect_video(temp_file.name, skip_frames=0)
-                # drop useless columns ([]'input', 'frame', 'approx_time'])
+                video_prediction = detector.detect_video(temp_file.name, skip_frames=self.skip_frames)
                 video_prediction = video_prediction.drop(columns=['input', 'frame', 'approx_time'])
                 print(video_prediction.columns)
                 video_prediction = video_prediction.mean(skipna=True).to_dict()
@@ -61,17 +58,18 @@ class ParticipantPyFeatVideoFeatureAnalyzer(ContributionAnalyzer):
         
         
 class GlobalPyFeatVideoFeatureAnalyzer(GlobalAnalyzer):
-    def analyze(self, ao):
-        if ContributionPyFeatVideoFeatureAnalyzer.__name__ not in ao.analyses_done:
-            ContributionPyFeatVideoFeatureAnalyzer().analyze(ao)
-
-        list_of_video_features = []
-
+    
+    def __init__(self, skip_frames=None) -> None:
+        self.skip_frames = skip_frames
         
-        for contribution in ao.contribution_data:
-            list_of_video_features.append(contribution['pyfeat_video_features'])
-            
-        # average over all contributions of a participant
-        ao.global_data['pyfeat_video_features'] = pd.DataFrame(list_of_video_features).mean(skipna=True).to_dict()
+        
+    def analyze(self, ao):
+        detector = Detector()
+
+        video_prediction = detector.detect_video(ao.video_path, skip_frames=self.skip_frames)
+        video_prediction = video_prediction.drop(columns=['input', 'frame', 'approx_time'])
+        print(video_prediction.columns)
+        ao.global_data['pyfeat_video_features_mean'] = video_prediction.mean(skipna=True).to_dict()
+        ao.global_data['pyfeat_video_features_std'] = video_prediction.std(skipna=True).to_dict()
 
         ao.analyses_done.append(self.__class__.__name__)

@@ -13,20 +13,6 @@ import os
 @pytest.fixture
 def analysis_object_with_obama_second_inauguration_video():
     return './tests/test_assets/President_Obama_takes_the_Oath_of_Office_(HD).ogv.720p.vp9.webm'
-
-
-
-# # test the diarization and transcription of the obama second inauguration video
-# def test_obama_second_inauguration_video(analysis_object_with_obama_second_inauguration_video):
-#     video_path = analysis_object_with_obama_second_inauguration_video
-#     transcriber = TranscriberAndDiarizer(device=torch.device("cuda"),pyannote_api_key='PYANNOTE_KEY_HERE',merge_consecutive_speakers=True)
-#     anonymizer = Anonymizer()
-#     audio_extractor = AudioExtractor()
-
-
-#     # audio_extractor.process(video_path, audio_path=audio_path)
-#     trs = transcriber.process(video_path)
-#     trs = anonymizer.process(trs)
     
 
 def test_audio_extractor(analysis_object_with_obama_second_inauguration_video):
