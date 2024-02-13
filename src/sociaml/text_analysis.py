@@ -81,7 +81,7 @@ class ContributionEkmanEmotionAnalyzer(ContributionAnalyzer):
 
         
         for contribution in ao.contribution_data:
-            cls = classifier(contribution['transcript'])[0]
+            cls = classifier(contribution['transcript'], padding=True, truncation=True)[0]
             # attach the classification to the contribution in the data
             emotion_dict = {item['label']: item['score'] for item in cls}
             contribution['ekmanemotion'] = emotion_dict
@@ -130,7 +130,7 @@ class GlobalEkmanEmotionAnalyzer(GlobalAnalyzer):
             classifier = pipeline("text-classification", model="j-hartmann/emotion-english-distilroberta-base", top_k=None)
 
         
-            cls = classifier(ao.global_data['transcript'])[0]
+            cls = classifier(ao.global_data['transcript'], padding=True, truncation=True)[0]
             # attach the classification to the contribution in the data
             emotion_dict = {item['label']: item['score'] for item in cls}
             
@@ -177,7 +177,7 @@ class ContributionSentimentAnalyzer(ContributionAnalyzer):
         processed_contributions = []
         
         for contribution in ao.contribution_data:
-            cls = classifier(contribution['transcript'])[0]
+            cls = classifier(contribution['transcript'], padding=True, truncation=True)[0]
             # attach the classification to the contribution in the data
             emotion_dict = {item['label']: item['score'] for item in cls}
             contribution['sentiment'] = emotion_dict
@@ -255,7 +255,7 @@ class GlobalSentimentAnalyzer(GlobalAnalyzer):
             
             classifier = pipeline(model="lxyuan/distilbert-base-multilingual-cased-sentiments-student", top_k=None)
         
-            cls = classifier(ao.global_data['transcript'])[0]
+            cls = classifier(ao.global_data['transcript'], padding=True, truncation=True)[0]
             # attach the classification to the contribution in the data
             emotion_dict = {item['label']: item['score'] for item in cls}
             ao.global_data['sentiment'] = emotion_dict
