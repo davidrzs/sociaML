@@ -37,10 +37,14 @@ class ContributionPyFeatVideoFeatureAnalyzer(ContributionAnalyzer):
 
 
 class ParticipantPyFeatVideoFeatureAnalyzer(ContributionAnalyzer):
+    
+    def __init__(self, skip_frames=None) -> None:
+        self.skip_frames = skip_frames
+    
     def analyze(self, ao):
         
         if ContributionPyFeatVideoFeatureAnalyzer.__name__ not in ao.analyses_done:
-            ContributionPyFeatVideoFeatureAnalyzer().analyze(ao)
+            ContributionPyFeatVideoFeatureAnalyzer(skip_frames=self.skip_frames).analyze(ao)
 
         for participant in ao.participants:
             
