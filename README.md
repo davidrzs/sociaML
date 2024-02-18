@@ -11,7 +11,7 @@
 
 ## Features
 
-- **Transcription and Diarization**: Utilizes Pyannote and OpenAI Whisper for generating transcribed and diarized video data.
+- **Transcription and Diarization**: Utilizes WhisperX for transcription and diarization.
 - **Anonymization**: Incorporates Presidio for automatic anonymization of data.
 - **Audio Features Extraction**: Extracts various audio features like emotions, MFCCs, speaking times, and silent times.
 - **Visual Features Extraction**: Analyzes facial emotions, Facial Action Coding System, and facial posture.
@@ -25,6 +25,14 @@ This stems from the fact that we depend on Whisper which depends on Triton which
 
 
 ## Usage
+
+### Installation
+
+As the API is not stable yet, please install it directly from git
+
+```bash
+pip install git+https://github.com/davidrzs/sociaML
+```
 
 ### General Architecture
 
@@ -104,6 +112,7 @@ If you have feature requests or want to co-develop this package please do not he
 Developer
 
 - David Zollikofer zdavid@ethz.ch
+- Loïc Cabon lcabon@ethz.ch
 
 Technical guidance by 
 
