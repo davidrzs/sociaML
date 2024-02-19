@@ -207,6 +207,9 @@ class GlobalAudioSpeakingTimeAnalyzer(GlobalAnalyzer):
             
         if ContributionAudioSpeakingTimeAnalyzer.__name__ not in ao.analyses_done:
             ContributionAudioSpeakingTimeAnalyzer().analyze(ao)
+
+        if ParticipantAudioSpeakingTimeAnalyzer.__name__ not in ao.analyses_done:
+            ParticipantAudioSpeakingTimeAnalyzer().analyze(ao)
             
         if GlobalContributionCount.__name__ not in ao.analyses_done:
             GlobalContributionCount().analyze(ao)            
