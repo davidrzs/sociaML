@@ -213,6 +213,9 @@ class GlobalAudioSpeakingTimeAnalyzer(GlobalAnalyzer):
             
         if ParticipantContributionCount.__name__ not in ao.analyses_done:
             ParticipantContributionCount().analyze(ao)
+            
+        if ParticipantAudioSpeakingTimeAnalyzer.__name__ not in ao.analyses_done:
+            ParticipantAudioSpeakingTimeAnalyzer().analyze(ao)
                         
         ao.global_data['speaking_time_sum'] = 0
         
@@ -338,6 +341,9 @@ class GlobalAudioSilenceTimeAnalyzer(GlobalAnalyzer):
     def analyze(self, ao):
         if ContributionAudioSilenceTimeAnalyzer.__name__ not in ao.analyses_done:
             ContributionAudioSilenceTimeAnalyzer().analyze(ao)
+            
+        if ParticipantAudioSilenceTimeAnalyzer.__name__ not in ao.analyses_done:
+            ParticipantAudioSilenceTimeAnalyzer().analyze(ao)
 
         ao.global_data['silent_time_before_sum'] = 0
         ao.global_data['silent_time_after_sum'] = 0
