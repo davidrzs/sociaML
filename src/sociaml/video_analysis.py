@@ -6,7 +6,7 @@ import moviepy.editor as mp
 from tempfile import NamedTemporaryFile
 from feat import Detector
 import pandas as pd
-
+import torch
 
 class ContributionPyFeatVideoFeatureAnalyzer(ContributionAnalyzer):
     
@@ -17,7 +17,7 @@ class ContributionPyFeatVideoFeatureAnalyzer(ContributionAnalyzer):
         contributions = ao.contribution_data
         
         clip = mp.VideoFileClip(ao.video_path)
-        detector = Detector()
+        detector = Detector(device='cuda' if torch.cuda.is_available() else 'cpu')
 
         for i, contribution in enumerate(contributions):
             
@@ -68,7 +68,8 @@ class GlobalPyFeatVideoFeatureAnalyzer(GlobalAnalyzer):
         
         
     def analyze(self, ao):
-        detector = Detector()
+        detector = Detector(device='cuda' if torch.cuda.is_available() else 'cpu')
+
 
         video_prediction = detector.detect_video(ao.video_path, skip_frames=self.skip_frames)
         video_prediction = video_prediction.drop(columns=['input', 'frame', 'approx_time'])
