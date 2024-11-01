@@ -12,11 +12,10 @@ import glob
 from tqdm import tqdm
 import json
 import os
-import whisperx
 import gc 
         
 from .datastructures import Contribution, Transcription
-
+from .utils import get_device
 
 class Preprocessor:
     """
@@ -144,6 +143,7 @@ class AudioExtractor(Preprocessor):
     
     
 
+
 class TranscriberAndDiarizer(Preprocessor):
     """
     Transcriber and Diarizer class for processing audio and video files.
@@ -154,7 +154,7 @@ class TranscriberAndDiarizer(Preprocessor):
     pipeline (Pipeline): Pyannote audio pipeline for speaker diarization.
     """
 
-    def __init__(self, pyannote_api_key=None, merge_consecutive_speakers=True, device="cuda", batch_size: int = 16, compute_type: str = "float16"):
+    def __init__(self, pyannote_api_key=None, merge_consecutive_speakers=True, device=get_device()):
         """
         Initialize the TranscriberAndDiarizer class.
 
@@ -162,18 +162,17 @@ class TranscriberAndDiarizer(Preprocessor):
         merge_consecutive_speakers (bool): Flag to merge consecutive speakers.
         device (torch.device): Device to run the models on.
         pyannote_api_key (str, optional): API key for Pyannote pipeline.
-        batch_size (int, optional): _description_. Defaults to 16.
-        compute_type (str, optional): _description_. Defaults to "float16", can also be "int8" if low on GPU mem (but reduces accuracy)
         """
-        
-        if device == "cpu":
-            assert compute_type != "float16", "float16 is not supported on CPU, choose int8 instead"
-        
         self.merge_consecutive_speakers = merge_consecutive_speakers
+        
         self.device = device
-        self.pyannote_api_key = pyannote_api_key
-        self.batch_size = batch_size
-        self.compute_type = compute_type
+        
+        self.pipeline = Pipeline.from_pretrained(
+            "pyannote/speaker-diarization-3.0",
+            use_auth_token=pyannote_api_key
+        )
+        
+        self.pipeline.to(self.device)
         
 
     def __transcribe_segments(self, audio_data_segments, samplerate):
@@ -203,92 +202,54 @@ class TranscriberAndDiarizer(Preprocessor):
                 ))
 
         return ts
-    
-    
+            
     def process(self, video_path: str):
         """
         Process a video file for transcription and diarization.
 
-        Args:
-            video_path (str): _description_
-            device (str, optional): _description_. Defaults to "cuda".
+        Parameters:
+        video_path (str): Path to the video file.
+
+        Returns:
+        Transcription: The transcription of the audio in the video.
         """
         video = VideoFileClip(video_path)
-        
-        # code below adapted from https://github.com/m-bain/whisperX
 
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_file = os.path.join(temp_dir, "audio.mp3")
             video.audio.write_audiofile(temp_file, verbose=False, logger=None)
-
-            model = whisperx.load_model("large-v2", self.device, compute_type=self.compute_type)
-
-
-            audio = whisperx.load_audio(temp_file)
-            result = model.transcribe(audio, batch_size=self.batch_size)
-
-            gc.collect(); torch.cuda.empty_cache(); del model
-
-            model_a, metadata = whisperx.load_align_model(language_code=result["language"], device=self.device)
-            result = whisperx.align(result["segments"], model_a, metadata, audio, self.device, return_char_alignments=False)
-
-            gc.collect(); torch.cuda.empty_cache(); del model_a
-
-            diarize_model = whisperx.DiarizationPipeline(use_auth_token=self.pyannote_api_key, device=self.device)
-
-            diarize_segments = diarize_model(audio)
-
-            result = whisperx.assign_word_speakers(diarize_segments, result)
-
-            
+            diarization = self.pipeline(temp_file)
+            audio_data, samplerate = sf.read(temp_file)
             transcription = Transcription()
 
-            if self.merge_consecutive_speakers:
-                
-                segments =  []
-                previous_speaker = None
-                
-                for seg in result["segments"]:
-                    speaker = seg.get('speaker',"UNKNOWN")
-                    start = seg.get('start',"UNKNOWN")
-                    end = seg.get('end',"UNKNOWN")
-                    transcript = seg.get('text',"UNKNOWN")
+            last_speaker = None
+            last_end = None
 
-                    # If the current speaker is the same as the previous speaker, extend the previous segment
-                    if speaker == previous_speaker:
-                        segments[-1] = Contribution(
-                                # get the start of the previous one
-                                start=segments[-1].start,
-                                # as we extend we have a new end
-                                end=end,
-                                speaker=speaker,
-                                # transcript is appended
-                                transcript=segments[-1].transcript + " " + transcript
-                            ) 
-                    else:
-                        segments.append(Contribution(
+            for turn, _, speaker in diarization.itertracks(yield_label=True):
+                start = turn.start
+                end = turn.end
+
+                # Check if this speaker is the same as the last speaker and the option is set
+                if self.merge_consecutive_speakers and speaker == last_speaker:
+                    # Update the end time of the last contribution
+                    transcription.contributions[-1].end = end
+                else:
+                    # Process a new speaker turn
+                    speaker_audio = audio_data[int(start * samplerate):int(end * samplerate)]
+                    with tempfile.NamedTemporaryFile(suffix=".wav", delete=True) as temp_file:
+                        sf.write(temp_file, speaker_audio, samplerate)
+                        temp_file.seek(0)
+                        result = whisper.load_model("medium").transcribe(temp_file.name)
+
+                        transcription.contributions.append(Contribution(
                             start=start,
                             end=end,
                             speaker=speaker,
-                            transcript=transcript
+                            transcript=result["text"]
                         ))
 
-                    previous_speaker = speaker
-                    
-                transcription.contributions = segments
-            
-            else:
+                # Update the last speaker and end time
+                last_speaker = speaker
+                last_end = end
 
-                for seg in result["segments"]:
-                    transcription.contributions.append(Contribution(
-                        start=seg.get('start',"UNKNOWN"),
-                        end=seg.get('end',"UNKNOWN"),
-                        speaker=seg.get('speaker',"UNKNOWN"),
-                        transcript=seg.get('text',"UNKNOWN")
-                    ))
-                    
-            
-            
-            
             return transcription
-
