@@ -1,7 +1,7 @@
 import pandas as pd
 import json
 import numpy as np
-
+import torch
 
 def features_to_df(data : dict, type="global") -> pd.DataFrame:
 
@@ -64,3 +64,12 @@ class NumpyEncoder(json.JSONEncoder):
         elif isinstance(obj, np.ndarray):
             return obj.tolist()
         return json.JSONEncoder.default(self, obj)
+
+
+def get_device():
+    if torch.cuda.is_available():
+        return torch.device('cuda')
+    elif hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
+        return torch.device('mps')
+    return torch.device('cpu')
+

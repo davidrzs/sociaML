@@ -1,9 +1,6 @@
-# NOTICE: UNDER ACTIVE DEVELOPMENT
-
 [![pdm-managed](https://img.shields.io/badge/pdm-managed-blueviolet)](https://pdm-project.org)
 ![GitHub License](https://img.shields.io/github/license/davidrzs/sociaML)
 ![PyPI - Version](https://img.shields.io/pypi/v/sociaML)
-
 
 # sociaML - the Swiss Army knife for audiovisual and textual video feature extraction.
 
@@ -18,15 +15,14 @@
 - **Textual Features Extraction**: Provides analysis on Ekman emotions, sentiment, word/token counts, sentence embeddings, and more.
 
 
-
-## Attention: Currently we are Linux only.
-
-This stems from the fact that we depend on Whisper which depends on Triton which is Linux only for the time being. 
-
+## Attention: Only tested on Linux and MacOS
 
 ## Usage
 
+
 ### Installation
+
+Make sure you have https://www.ffmpeg.org/ installed on your system. It is a prerequisite for Whisper.
 
 As the API is not stable yet, please install it directly from git
 
@@ -128,7 +124,6 @@ TODO: This project stands on the should of giants (more infos as well as suggest
 
 - https://py-feat.org
 - https://github.com/pyannote/pyannote-audio
-- https://github.com/m-bain/whisperX
 - https://librosa.org
 - https://www.sbert.net (SentenceTransformers)
 - https://github.com/audeering/w2v2-how-to

@@ -163,3 +163,4 @@ cython_debug/
 model/*
 cache/*
 audio.mp3
+.DS_Store
