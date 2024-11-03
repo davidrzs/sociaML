@@ -36,6 +36,17 @@ SociaMLs pipeline can best be summarized by the following graphic:
 
 ![pipeline](https://raw.githubusercontent.com/davidrzs/sociaML/main/docs/images/pipeline.png?token=GHSAT0AAAAAACLXMZ3GTH4TYFX3ETB3LZWQZNDHXRA)
 
+
+### Huggingface API Key
+
+To run the pipeline you might need a Huggingface API Key which you get [here](https://huggingface.co/docs/hub/en/security-tokens).
+
+You can make the huggingface token available as follows: 
+```python
+import os
+os.environ["HUGGINGFACE_TOKEN"] = access_token
+```
+
 ### Preprocessing
 
 `sociaML` offers a preprocessing pipeline that converts videos into an intermediate JSON representation for efficient analysis. This step involves transcription, diarization, and anonymization.
@@ -44,7 +55,7 @@ SociaMLs pipeline can best be summarized by the following graphic:
 from sociaML.preprocessing import TranscriberAndDiarizer, Anonymizer, AudioExtractor
 
 # Initialize components
-transcriber = TranscriberAndDiarizer()
+transcriber = TranscriberAndDiarizer(pyannote_api_key=os.getenv('HUGGINGFACE_TOKEN'))
 anonymizer = Anonymizer()
 audio_extractor = AudioExtractor()
 
@@ -100,18 +111,18 @@ The most granular level of analysis, contribution features, focuses on individua
 
 ## Collaborating and Getting Involved 
 
-If you have feature requests or want to co-develop this package please do not hesitate to reach out! 
+If you have feature requests or want to co-develop this package please do not hesitate to reach out!
 
 
 ## Collaborators
 
 Developer
-
 - David Zollikofer zdavid@ethz.ch
+
+Previous Developers:
 - Loïc Cabon lcabon@ethz.ch
 
 Technical guidance by 
-
 - [Elliott Ash](https://elliottash.com/)
 - [Aniket Kesari](https://www.aniketkesari.com/)
 
@@ -120,13 +131,21 @@ Technical guidance by
 ## Sources
 
 
-TODO: This project stands on the should of giants (more infos as well as suggested citations to come.)
+This project stands on the shoulders of giants and merely provides a convenient wrapper for them. If you use sociaML in your research please cite the original models below:
 
-- https://py-feat.org
-- https://github.com/pyannote/pyannote-audio
-- https://librosa.org
-- https://www.sbert.net (SentenceTransformers)
-- https://github.com/audeering/w2v2-how-to
+> Jochen Hartmann, "Emotion English DistilRoBERTa-base". https://huggingface.co/j-hartmann/emotion-english-distilroberta-base/, 2022.
+
+> Cheong, J. H., et al. "Py-Feat: Python facial expression analysis toolbox. arXiv [cs. CV]." 2021,
+
+> Plaquet, Alexis, and Hervé Bredin. "Powerset multi-class cross entropy loss for neural speaker diarization." arXiv preprint arXiv:2310.13025 (2023).
+
+> Bredin, H. (2023) pyannote.audio 2.1 speaker diarization pipeline: principle, benchmark, and recipe. Proc. INTERSPEECH 2023, 1983-1987, doi: 10.21437/Interspeech.2023-105
+
+> Reimers, N. "Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks." arXiv preprint arXiv:1908.10084 (2019).
+
+> Daniel Loureiro, Francesco Barbieri, Leonardo Neves, Luis Espinosa Anke, and Jose Camacho-collados. 2022. TimeLMs: Diachronic Language Models from Twitter. In Proceedings of the 60th Annual Meeting of the Association for Computational Linguistics: System Demonstrations, pages 251–260, Dublin, Ireland. Association for Computational Linguistics.
+
+> Daniel Loureiro, Francesco Barbieri, Leonardo Neves, Luis Espinosa Anke, and Jose Camacho-collados. 2022. TimeLMs: Diachronic Language Models from Twitter. In Proceedings of the 60th Annual Meeting of the Association for Computational Linguistics: System Demonstrations, pages 251–260, Dublin, Ireland. Association for Computational Linguistics.
 
 ## License
 
