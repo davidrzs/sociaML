@@ -16,16 +16,12 @@ dependencies = [
     "dataclasses-json>=0.6.7",
     "sentence-transformers>=3.2.1",
     "moviepy>=1.0.3",
-    "numpy>=2.0.2",
-    "pandas>=2.2.3",
     "presidio-analyzer>=2.2.355",
     "presidio-anonymizer>=2.2.355",
     "pip>=24.3.1",
     "openai-whisper>=20240930",
     "pyannote-audio>=3.3.2",
-    "onnxruntime>=1.20.0",
-    "py-feat>=0.6.1",
-    "matplotlib>=3.0",
+    "onnxruntime>=1.20.0"
 ]
 requires-python = ">=3.10, <3.13"
 readme = "README.md"
