@@ -6,14 +6,18 @@
 
 `sociaML` is a Python package designed for the automatic analysis of videos. It facilitates the extraction of audiovisual and textual features from videos, offering a comprehensive toolkit for researchers and developers working with multimedia data. With sociaML you can extract features relevant downstream research (eg social sciences) with little knowledge machine learning or even Python.
 
+
+> [!WARNING]  
+> Emotion extraction from videos is currently not working due to a dependency conflict! Will hopefully be fixed soon.
+
+
 ## Features
 
-- **Transcription and Diarization**: Utilizes WhisperX for transcription and diarization.
+- **Transcription and Diarization**: Utilizes Whisper for transcription and diarization.
 - **Anonymization**: Incorporates Presidio for automatic anonymization of data.
 - **Audio Features Extraction**: Extracts various audio features like emotions, MFCCs, speaking times, and silent times.
 - **Visual Features Extraction**: Analyzes facial emotions, Facial Action Coding System, and facial posture.
 - **Textual Features Extraction**: Provides analysis on Ekman emotions, sentiment, word/token counts, sentence embeddings, and more.
-
 
 ## Attention: Only tested on Linux and MacOS
 
