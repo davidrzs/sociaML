@@ -82,19 +82,20 @@ class ContributionNLTKTokenCountAnalyzer(GlobalAnalyzer):
 
 
 class ContributionEkmanEmotionAnalyzer(ContributionAnalyzer):
-    def __init__(self, model='j-hartmann/emotion-english-distilroberta-base', device=get_device()):
-        self.classifier = pipeline("text-classification", model=model, return_all_scores=True, device=device)
+    def __init__(
+        self, model="j-hartmann/emotion-english-distilroberta-base", device=get_device()
+    ):
+        self.classifier = pipeline(
+            "text-classification", model=model, return_all_scores=True, device=device
+        )
         self.device = device
-
-
 
     def analyze(self, ao: AnalysisObject):
 
-
         for contribution in ao.contribution_data:
-            cls = self.classifier(contribution["transcript"], padding=True, truncation=True)[
-                0
-            ]
+            cls = self.classifier(
+                contribution["transcript"], padding=True, truncation=True
+            )[0]
             # attach the classification to the contribution in the data
             emotion_dict = {item["label"]: item["score"] for item in cls}
             contribution["ekmanemotion"] = emotion_dict
@@ -104,7 +105,9 @@ class ContributionEkmanEmotionAnalyzer(ContributionAnalyzer):
 
 class ParticipantEkmanEmotionAnalyzer(ParticipantAnalyzer):
 
-    def __init__(self, model='j-hartmann/emotion-english-distilroberta-base', device=get_device()):
+    def __init__(
+        self, model="j-hartmann/emotion-english-distilroberta-base", device=get_device()
+    ):
         self.model = model
         self.device = device
 
@@ -145,16 +148,25 @@ class ParticipantEkmanEmotionAnalyzer(ParticipantAnalyzer):
 
 class GlobalEkmanEmotionAnalyzer(GlobalAnalyzer):
 
-    def __init__(self, mode, model='j-hartmann/emotion-english-distilroberta-base', device=get_device()):
+    def __init__(
+        self,
+        mode,
+        model="j-hartmann/emotion-english-distilroberta-base",
+        device=get_device(),
+    ):
         self.mode = mode
         self.model = model
         self.device = device
 
-
     def analyze(self, ao: AnalysisObject):
 
         if self.mode == AnalysisMode.ENTIRE:
-            self.classifier = pipeline("text-classification", model=self.model, return_all_scores=True, device=self.device)
+            self.classifier = pipeline(
+                "text-classification",
+                model=self.model,
+                return_all_scores=True,
+                device=self.device,
+            )
 
             cls = self.classifier(
                 ao.global_data["transcript"], padding=True, truncation=True
@@ -209,9 +221,7 @@ class ContributionSentimentAnalyzer(ContributionAnalyzer):
     def analyze(self, ao: AnalysisObject):
 
         for contribution in ao.contribution_data:
-            cls = self.classifier(contribution["transcript"], truncation=True)[
-                0
-            ]
+            cls = self.classifier(contribution["transcript"], truncation=True)[0]
             # attach the classification to the contribution in the data
             emotion_dict = {item["label"]: item["score"] for item in cls}
             contribution["sentiment"] = emotion_dict
@@ -221,7 +231,11 @@ class ContributionSentimentAnalyzer(ContributionAnalyzer):
 
 class ParticipantSentimentAnalyzer(ParticipantAnalyzer):
 
-    def __init__(self, model='cardiffnlp/twitter-roberta-base-sentiment-latest', device=get_device()):
+    def __init__(
+        self,
+        model="cardiffnlp/twitter-roberta-base-sentiment-latest",
+        device=get_device(),
+    ):
         super().__init__()
         self.model = model
         self.device = device
@@ -229,7 +243,9 @@ class ParticipantSentimentAnalyzer(ParticipantAnalyzer):
     def analyze(self, ao):
 
         if ContributionSentimentAnalyzer.__name__ not in ao.analyses_done:
-            ContributionSentimentAnalyzer(model=self.model, device=self.device).analyze(ao)
+            ContributionSentimentAnalyzer(model=self.model, device=self.device).analyze(
+                ao
+            )
 
         if ParticipantContributionCount.__name__ not in ao.analyses_done:
             ParticipantContributionCount().analyze(ao)
@@ -260,7 +276,12 @@ class ParticipantSentimentAnalyzer(ParticipantAnalyzer):
 
 class GlobalSentimentAnalyzer(GlobalAnalyzer):
 
-    def __init__(self, mode: AnalysisMode = AnalysisMode.ENTIRE, model='cardiffnlp/twitter-roberta-base-sentiment-latest', device=get_device()):
+    def __init__(
+        self,
+        mode: AnalysisMode = AnalysisMode.ENTIRE,
+        model="cardiffnlp/twitter-roberta-base-sentiment-latest",
+        device=get_device(),
+    ):
         self.mode = mode
         self.device = device
         self.model = model
@@ -270,7 +291,9 @@ class GlobalSentimentAnalyzer(GlobalAnalyzer):
         if self.mode == AnalysisMode.AVERAGE_PER_CONTRIBUTION:
 
             if ContributionSentimentAnalyzer.__name__ not in ao.analyses_done:
-                ContributionSentimentAnalyzer(model=self.model, device=self.device).analyze(ao)
+                ContributionSentimentAnalyzer(
+                    model=self.model, device=self.device
+                ).analyze(ao)
 
             if GlobalContributionCount.__name__ not in ao.analyses_done:
                 GlobalContributionCount().analyze(ao)

@@ -1,4 +1,3 @@
-[![pdm-managed](https://img.shields.io/badge/pdm-managed-blueviolet)](https://pdm-project.org)
 ![GitHub License](https://img.shields.io/github/license/davidrzs/sociaML)
 ![PyPI - Version](https://img.shields.io/pypi/v/sociaML)
 

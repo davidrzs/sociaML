@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 from dataclasses_json import dataclass_json
 from typing import Optional, List, Dict
 
+
 @dataclass_json
 @dataclass
 class Contribution:
@@ -16,6 +17,7 @@ class Contribution:
         speaker (str): The identifier of the speaker.
         transcript (Optional[str]): The transcribed text of the contribution.
     """
+
     start: float
     end: float
     speaker: str
@@ -31,6 +33,7 @@ class Transcription:
     Attributes:
         contributions (List[Contribution]): A list of Contribution instances.
     """
+
     contributions: List[Contribution] = field(default_factory=list)
 
 
@@ -41,6 +44,7 @@ class AnalysisObject:
     Represents an object for storing various analysis data.
 
     """
+
     participants: Optional[list] = None
     global_data: Optional[dict] = None
     participant_data: Optional[dict] = None
@@ -48,8 +52,8 @@ class AnalysisObject:
     audio_path: Optional[str] = None
     video_path: Optional[str] = None
     analyses_done: list[str] = field(default_factory=list)
-    
-    
+
+
 class AnalysisMode(Enum):
     ENTIRE = 1
     AVERAGE_PER_PARTICIPANT = 2
