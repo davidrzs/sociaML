@@ -171,7 +171,7 @@ class TranscriberAndDiarizer(Preprocessor):
 
         self.device = device
 
-        self.whisper_model = whisper.load_model(self.whisper_size).to(self.device)
+        self.whisper_model = whisper.load_model(whisper_size).to(self.device)
 
         self.pipeline = Pipeline.from_pretrained(
             "pyannote/speaker-diarization-3.0",
