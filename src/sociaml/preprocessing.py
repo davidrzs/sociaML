@@ -154,7 +154,7 @@ class TranscriberAndDiarizer(Preprocessor):
     pipeline (Pipeline): Pyannote audio pipeline for speaker diarization.
     """
 
-    def __init__(self, pyannote_api_key=None, merge_consecutive_speakers=True, device=get_device()):
+    def __init__(self, pyannote_api_key=None, merge_consecutive_speakers=True, whisper_size="turbo", device=get_device()):
         """
         Initialize the TranscriberAndDiarizer class.
 
@@ -164,12 +164,12 @@ class TranscriberAndDiarizer(Preprocessor):
         pyannote_api_key (str, optional): API key for Pyannote pipeline.
         """
         self.merge_consecutive_speakers = merge_consecutive_speakers
-        
+        self.whisper_module = whisper.load_model(self.whisper_size)
         self.device = device
         
         self.pipeline = Pipeline.from_pretrained(
             "pyannote/speaker-diarization-3.0",
-            use_auth_token=pyannote_api_key
+            use_auth_token=pyannote_api_key if pyannote_api_key else os.getenv("HF_TOKEN")
         )
         
         self.pipeline.to(self.device)
@@ -192,7 +192,7 @@ class TranscriberAndDiarizer(Preprocessor):
             with tempfile.NamedTemporaryFile(suffix=".wav", delete=True) as temp_file:
                 sf.write(temp_file, speaker_audio, samplerate)
                 temp_file.seek(0)
-                result = whisper.load_model("medium").transcribe(temp_file.name)
+                result = self.whisper_module.transcribe(temp_file.name)
 
                 ts.contributions.append(Contribution(
                     start=start,
