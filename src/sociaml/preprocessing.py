@@ -12,10 +12,11 @@ import glob
 from tqdm import tqdm
 import json
 import os
-import gc 
-        
+import gc
+
 from .datastructures import Contribution, Transcription
 from .utils import get_device
+
 
 class Preprocessor:
     """
@@ -57,11 +58,11 @@ class Anonymizer(Preprocessor):
         Parameters:
         target_entities (list of str): A list of entity types to be anonymized.
         """
- 
-        self.analyzer  = AnalyzerEngine()
+
+        self.analyzer = AnalyzerEngine()
         self.anonymizer = AnonymizerEngine()
         self.target_entities = target_entities
-    
+
     def process(self, transcription: Transcription):
         """
         Anonymize sensitive information in a transcription.
@@ -74,10 +75,14 @@ class Anonymizer(Preprocessor):
         """
         for segment in transcription.contributions:
             text = segment.transcript
-            
-            results = self.analyzer.analyze(text=text, language='en', entities=self.target_entities)
-            
-            anonymized_result = self.anonymizer.anonymize(text=text, analyzer_results=results)
+
+            results = self.analyzer.analyze(
+                text=text, language="en", entities=self.target_entities
+            )
+
+            anonymized_result = self.anonymizer.anonymize(
+                text=text, analyzer_results=results
+            )
 
             segment.transcript = anonymized_result.text
 
@@ -86,8 +91,8 @@ class Anonymizer(Preprocessor):
 
 class AudioExtractor(Preprocessor):
     """
-    This class is designed to extract audio data from video files. It extends the Preprocessor class 
-    and provides functionality for reading video files, extracting the audio component, and then 
+    This class is designed to extract audio data from video files. It extends the Preprocessor class
+    and provides functionality for reading video files, extracting the audio component, and then
     saving or returning this audio data in a usable format.
 
     Attributes:
@@ -96,16 +101,16 @@ class AudioExtractor(Preprocessor):
     Methods:
     process(video_path: str, audio_path: str = None): Extracts and returns the audio data from a video file.
         - video_path: A string representing the file path to the input video.
-        - audio_path: An optional string representing the file path where the extracted audio should be saved. 
+        - audio_path: An optional string representing the file path where the extracted audio should be saved.
                       If not provided, a temporary file will be used.
 
-    The process method is the core function of this class. It takes a video file as input and extracts the audio track. 
-    If an audio_path is provided, the audio will be saved to this location. Otherwise, it will be saved to a temporary file. 
-    The method then reads the audio file and returns the audio data along with the sample rate. This data can be used 
+    The process method is the core function of this class. It takes a video file as input and extracts the audio track.
+    If an audio_path is provided, the audio will be saved to this location. Otherwise, it will be saved to a temporary file.
+    The method then reads the audio file and returns the audio data along with the sample rate. This data can be used
     for further audio processing tasks.
 
     Dependencies:
-    This class relies on the moviepy library for reading and extracting audio from video files and on the soundfile (sf) 
+    This class relies on the moviepy library for reading and extracting audio from video files and on the soundfile (sf)
     library for reading audio files into an array format.
 
     Example:
@@ -118,16 +123,16 @@ class AudioExtractor(Preprocessor):
         # Using a custom path for the extracted audio file
         audio_data, samplerate = extractor.process("path/to/video.mp4", "path/to/save/audio.mp3")
     """
-    
+
     def __init__(self) -> None:
         super().__init__()
         # Additional initialization can be added here if needed
-        
+
     def process(self, video_path: str, audio_path: str = None):
         video = VideoFileClip(video_path)
 
         if audio_path is None:
-            
+
             with tempfile.TemporaryDirectory() as temp_dir:
                 temp_file = os.path.join(temp_dir, "audio.mp3")
                 video.audio.write_audiofile(temp_file, verbose=False, logger=None)
@@ -138,118 +143,150 @@ class AudioExtractor(Preprocessor):
             video.audio.write_audiofile(audio_path, verbose=False, logger=None)
             audio_data, samplerate = sf.read(audio_path)
             return audio_data, samplerate
-    
-    
-    
-    
 
 
 class TranscriberAndDiarizer(Preprocessor):
     """
     Transcriber and Diarizer class for processing audio and video files.
-
-    Attributes:
-    merge_consecutive_speakers (bool): Flag to merge consecutive speakers.
-    device (torch.device): Device to run the models on.
-    pipeline (Pipeline): Pyannote audio pipeline for speaker diarization.
     """
 
-    def __init__(self, pyannote_api_key=None, merge_consecutive_speakers=True, whisper_size="turbo", device=get_device()):
+    def __init__(
+        self,
+        pyannote_api_key=None,
+        merge_consecutive_speakers=True,
+        whisper_size="turbo",
+        min_segment_duration=0.2,
+        device=get_device(),
+    ):
         """
         Initialize the TranscriberAndDiarizer class.
 
         Parameters:
-        merge_consecutive_speakers (bool): Flag to merge consecutive speakers.
-        device (torch.device): Device to run the models on.
-        pyannote_api_key (str, optional): API key for Pyannote pipeline.
+        pyannote_api_key (str): Huggingface API key for Pyannote pipeline
+        merge_consecutive_speakers (bool): Flag to merge consecutive speakers
+        min_segment_duration (float): Minimum duration in seconds for a valid segment
+        device (torch.device): Device to run the models on
         """
         self.merge_consecutive_speakers = merge_consecutive_speakers
-        self.whisper_module = whisper.load_model(self.whisper_size)
-        self.device = device
-        
+        self.whisper_model = whisper.load_model(self.whisper_size)
+
         self.pipeline = Pipeline.from_pretrained(
             "pyannote/speaker-diarization-3.0",
-            use_auth_token=pyannote_api_key if pyannote_api_key else os.getenv("HF_TOKEN")
+            use_auth_token=(
+                pyannote_api_key if pyannote_api_key else os.getenv("HF_TOKEN")
+            ),
         )
-        
-        self.pipeline.to(self.device)
-        
+        self.min_segment_duration = min_segment_duration
 
-    def __transcribe_segments(self, audio_data_segments, samplerate):
+        self.device = device
+
+        self.pipeline.to(self.device)
+
+    def _process_audio_segment(self, audio_data, start_sample, end_sample, samplerate):
         """
-        Transcribe audio segments.
+        Process a single audio segment with proper boundary handling.
 
         Parameters:
-        audio_data_segments (list): A list of tuples containing audio segment information.
-        samplerate (int): The samplerate of the audio.
+        audio_data (np.array): Full audio data
+        start_sample (int): Starting sample index
+        end_sample (int): Ending sample index
+        samplerate (int): Audio sample rate
 
         Returns:
-        Transcription: The transcription of the audio segments.
+        str: Transcribed text
         """
-        ts = Transcription()
+        # Ensure we don't go out of bounds
+        start_sample = max(0, start_sample)
+        end_sample = min(len(audio_data), end_sample)
 
-        for start, end, speaker, speaker_audio in audio_data_segments:
-            with tempfile.NamedTemporaryFile(suffix=".wav", delete=True) as temp_file:
-                sf.write(temp_file, speaker_audio, samplerate)
-                temp_file.seek(0)
-                result = self.whisper_module.transcribe(temp_file.name)
+        if start_sample >= end_sample:
+            return ""
 
-                ts.contributions.append(Contribution(
-                    start=start,
-                    end=end,
-                    speaker=speaker,
-                    transcription=result["text"]
-                ))
+        speaker_audio = audio_data[start_sample:end_sample]
 
-        return ts
-            
+        num_channels = speaker_audio.shape[1] if len(speaker_audio.shape) > 1 else 1
+        padding_duration = int(0.1 * samplerate)
+
+        if num_channels > 1:
+            padding = np.zeros((padding_duration, num_channels))
+            speaker_audio = np.vstack([padding, speaker_audio, padding])
+        else:
+            padding = np.zeros(padding_duration)
+            speaker_audio = np.concatenate([padding, speaker_audio, padding])
+
+        with tempfile.NamedTemporaryFile(suffix=".wav", delete=True) as temp_file:
+            sf.write(temp_file, speaker_audio, samplerate)
+            temp_file.seek(0)
+            result = self.whisper_model.transcribe(temp_file.name)
+            return result["text"].strip()
+
     def process(self, video_path: str):
         """
-        Process a video file for transcription and diarization.
+        Process a video file for transcription and diarization with improved timing handling.
 
         Parameters:
-        video_path (str): Path to the video file.
+        video_path (str): Path to the video file
 
         Returns:
-        Transcription: The transcription of the audio in the video.
+        Transcription: The transcription of the audio in the video
         """
         video = VideoFileClip(video_path)
+        transcription = Transcription()
 
         with tempfile.TemporaryDirectory() as temp_dir:
-            temp_file = os.path.join(temp_dir, "audio.mp3")
+            # Extract audio
+            temp_file = os.path.join(
+                temp_dir, "audio.wav"
+            )  # Using WAV instead of MP3 for better timing accuracy
             video.audio.write_audiofile(temp_file, verbose=False, logger=None)
-            diarization = self.pipeline(temp_file)
-            audio_data, samplerate = sf.read(temp_file)
-            transcription = Transcription()
 
-            last_speaker = None
-            last_end = None
+            # Load audio data
+            audio_data, samplerate = sf.read(temp_file)
+
+            # Run diarization
+            diarization = self.pipeline(temp_file)
+
+            # Process segments
+            current_segment = None
 
             for turn, _, speaker in diarization.itertracks(yield_label=True):
                 start = turn.start
                 end = turn.end
+                duration = end - start
 
-                # Check if this speaker is the same as the last speaker and the option is set
-                if self.merge_consecutive_speakers and speaker == last_speaker:
-                    # Update the end time of the last contribution
-                    transcription.contributions[-1].end = end
+                # Skip very short segments that might be noise
+                if duration < self.min_segment_duration:
+                    continue
+
+                # Convert time to sample indices
+                start_sample = int(start * samplerate)
+                end_sample = int(end * samplerate)
+
+                if (
+                    self.merge_consecutive_speakers
+                    and current_segment
+                    and current_segment.speaker == speaker
+                ):
+                    # Merge with previous segment if same speaker
+                    current_segment.end = end
+                    # Process the new portion of audio
+                    new_text = self._process_audio_segment(
+                        audio_data,
+                        int(current_segment.end * samplerate),
+                        end_sample,
+                        samplerate,
+                    )
+                    if new_text:
+                        current_segment.transcript += " " + new_text
                 else:
-                    # Process a new speaker turn
-                    speaker_audio = audio_data[int(start * samplerate):int(end * samplerate)]
-                    with tempfile.NamedTemporaryFile(suffix=".wav", delete=True) as temp_file:
-                        sf.write(temp_file, speaker_audio, samplerate)
-                        temp_file.seek(0)
-                        result = whisper.load_model("medium").transcribe(temp_file.name)
+                    # Create new segment
+                    text = self._process_audio_segment(
+                        audio_data, start_sample, end_sample, samplerate
+                    )
+                    if text:
+                        current_segment = Contribution(
+                            start=start, end=end, speaker=speaker, transcript=text
+                        )
+                        transcription.contributions.append(current_segment)
 
-                        transcription.contributions.append(Contribution(
-                            start=start,
-                            end=end,
-                            speaker=speaker,
-                            transcript=result["text"]
-                        ))
-
-                # Update the last speaker and end time
-                last_speaker = speaker
-                last_end = end
-
-            return transcription
+        return transcription

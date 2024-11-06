@@ -16,7 +16,7 @@ class Analysis:
             *args: Variable length argument list representing different analyzers.
         """
         self.analyzers = args
-    
+
     def analyze(self, transcription: Transcription, video_path: str, audio_path: str):
 
         participants = []
@@ -24,30 +24,34 @@ class Analysis:
         for contribution in transcription.contributions:
             if contribution.speaker not in participants:
                 participants.append(contribution.speaker)
-                
-        participant_data : dict = {}
+
+        participant_data: dict = {}
         for participant in participants:
             participant_data[participant] = {}
-            
-        global_data : dict = {
-            "transcript": ""
-        }
-        
+
+        global_data: dict = {"transcript": ""}
+
         for contribution in transcription.contributions:
             if contribution.transcript:
                 global_data["transcript"] += contribution.transcript + " "
-        
-        
-        
-        ao : AnalysisObject = AnalysisObject(participants, global_data, participant_data, transcription.to_dict()['contributions'], audio_path, video_path)
-        
+
+        ao: AnalysisObject = AnalysisObject(
+            participants,
+            global_data,
+            participant_data,
+            transcription.to_dict()["contributions"],
+            audio_path,
+            video_path,
+        )
+
         for analyzer in self.analyzers:
             # check if the analyzer class is not already in the list of analyses done
             if analyzer.__class__.__name__ not in ao.analyses_done:
                 # if not, analyze the data
                 analyzer.analyze(ao)
-                
+
         return ao.global_data, ao.participant_data, ao.contribution_data
+
 
 class Analyzer:
     """
@@ -72,6 +76,7 @@ class ParticipantAnalyzer(Analyzer):
     """
     Analyzer subclass focusing on participant-specific analysis.
     """
+
     pass
 
 
@@ -79,6 +84,7 @@ class GlobalAnalyzer(Analyzer):
     """
     Analyzer subclass focusing on global-level analysis.
     """
+
     pass
 
 
@@ -86,4 +92,5 @@ class ContributionAnalyzer(Analyzer):
     """
     Analyzer subclass focusing on individual contributions.
     """
+
     pass
