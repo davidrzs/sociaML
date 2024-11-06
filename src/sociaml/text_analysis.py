@@ -7,6 +7,7 @@ from transformers import pipeline
 import nltk
 from sentence_transformers import SentenceTransformer
 import spacy
+from spacy.cli import download
 import torch
 
 
@@ -201,10 +202,9 @@ class GlobalEkmanEmotionAnalyzer(GlobalAnalyzer):
 
 
 class ContributionSentimentAnalyzer(ContributionAnalyzer):
-
     def __init__(self, model='cardiffnlp/twitter-roberta-base-sentiment-latest', device=get_device()):
-        self.classifier = pipeline("text-classification", model=model, return_all_scores=True, device=device)
-
+        self.classifier = pipeline("sentiment-analysis", model=model, tokenizer=model, return_all_scores=True, device=device)
+        self.device = device
 
     def analyze(self, ao: AnalysisObject):
 
@@ -300,8 +300,7 @@ class GlobalSentimentAnalyzer(GlobalAnalyzer):
 
             assert self.mode == AnalysisMode.ENTIRE
 
-            classifier = pipeline("text-classification", model=self.model, return_all_scores=True, device=self.device)
-
+            classifier = pipeline("sentiment-analysis", model=self.model,tokenizer=self.model, return_all_scores=True, device=self.device)
 
             cls = classifier(
                 ao.global_data["transcript"], padding=True, truncation=True
@@ -322,8 +321,12 @@ class ContributionSentenceTransformerEmbeddingAnalyzer(ContributionAnalyzer):
         super().__init__()
 
         self.model = SentenceTransformer(sentence_transformer)
+        try:
+            self.spacy_nlp = spacy.load("en_core_web_lg")
+        except OSError:
+            download(model="en_core_web_lg")
+            self.spacy_nlp = spacy.load("en_core_web_lg")
 
-        self.spacy_nlp = spacy.load("en_core_web_sm")
 
     def analyze(self, ao: AnalysisObject):
 
