@@ -168,7 +168,10 @@ class TranscriberAndDiarizer(Preprocessor):
         device (torch.device): Device to run the models on
         """
         self.merge_consecutive_speakers = merge_consecutive_speakers
-        self.whisper_model = whisper.load_model(self.whisper_size)
+
+        self.device = device
+
+        self.whisper_model = whisper.load_model(self.whisper_size).to(self.device)
 
         self.pipeline = Pipeline.from_pretrained(
             "pyannote/speaker-diarization-3.0",
@@ -177,8 +180,6 @@ class TranscriberAndDiarizer(Preprocessor):
             ),
         )
         self.min_segment_duration = min_segment_duration
-
-        self.device = device
 
         self.pipeline.to(self.device)
 
